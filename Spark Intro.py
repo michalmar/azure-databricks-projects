@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %md # ADASTRA Databricks Spark overview
+# MAGIC %md # Databricks Spark overview
 # MAGIC 
 # MAGIC ## intro & setup
 
