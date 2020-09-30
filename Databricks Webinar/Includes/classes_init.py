@@ -122,9 +122,14 @@ displayHTML("""
 
 # COMMAND ----------
 
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
+# import keras
+# from keras.models import Sequential
+# from keras.layers import Dense
+
+import tensorflow.keras as keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
 import mlflow
 import mlflow.keras
 

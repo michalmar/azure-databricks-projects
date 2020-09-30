@@ -108,38 +108,6 @@ val_x, val_y = Utils.get_validation_data(wind_farm_data)
 # MAGIC          alt="MLflow tracking, projects, and models"  width="600">
 # MAGIC 
 # MAGIC The following cells train a neural network in Keras to predict power output based on the weather features in the dataset. MLflow is used to track the model's hyperparameters, performance metrics, source code, and artifacts.
-# MAGIC 
-# MAGIC <img src="https://mlflow.org/images/integration-logos/keras.png" alt="Keras logo" width="150">
-# MAGIC 
-# MAGIC Train the model and use MLflow to track its parameters, metrics, artifacts, and source code.
-# MAGIC 
-# MAGIC Define a power forecasting model in Keras, and create three different models with different configuratons and tuning parameters
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dmatrix/spark-saturday/raw/master/tutorials/mlflow/src/python/images/nn_linear_regression.png"
-# MAGIC          alt="Keras NN Model as Logistic regression"  width="550">
-# MAGIC   </td></tr>
-# MAGIC </table>
-
-# COMMAND ----------
-
-# MAGIC %md Iterate over three different set of tunning parameters—input_units, epochs, and batch_size— and track all its results
-
-# COMMAND ----------
-
-from hyperopt import fmin, hp, tpe, SparkTrials, STATUS_OK
-
-def train_keras(params):
-  keras_obj = KerasModel(X_train, input_units = int(params['input_units']), loss="mse", optimizer="adam", metrics=["mse"])
-  loss = keras_obj.mlflow_run(X_train, y_train, epochs=100, batch_size=int(params['batch_size']), validation_split=.2, verbose=2)
-  return {'status': STATUS_OK, 'loss': loss}
-
-search_space = {
-  'input_units':  hp.quniform('input_units', 100, 200, 50),
-  'batch_size':   hp.quniform('batch_size', 64, 128, 32)
-}
-fmin(fn=train_keras, space=search_space, algo=tpe.suggest, max_evals=3, trials=SparkTrials(parallelism=3))
 
 # COMMAND ----------
 
@@ -149,219 +117,6 @@ fmin(fn=train_keras, space=search_space, algo=tpe.suggest, max_evals=3, trials=S
 # MAGIC 
 # MAGIC <img src="https://databricks.com/wp-content/uploads/2019/10/model-registry-new.png"
 # MAGIC          alt="MLflow model registry"  width="800">
-
-# COMMAND ----------
-
-# MAGIC %md ### Create a new Registered Model
-# MAGIC 
-# MAGIC First, navigate to the MLflow Runs Sidebar by clicking the `Runs` icon in the Databricks Notebook UI.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/runs_sidebar_icon.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="500">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC Next, locate the MLflow Run corresponding to the Keras model training session, and open it in the MLflow Run UI by clicking the `View Run Detail` icon.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/runs_sidebar_opened.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="300">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC In the MLflow UI, scroll down to the `Artifacts` section and click on the directory named `model`. Click on the `Register Model` button that appears.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/mlflow_ui_register_model.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="700">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC Then, select `Create New Model` from the drop-down menu, and input the following model name: `power-forecasting-model`. Finally, click `Register`. This registers a new model called `power-forecasting-model` and creates a new model version: `Version 1`.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/register_model_confirm.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="450">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC After a few moments, the MLflow UI displays a link to the new registered model. Follow this link to open the new model version in the MLflow Model Registry UI.
-
-# COMMAND ----------
-
-# MAGIC %md ### Explore the Model Registry UI
-# MAGIC 
-# MAGIC The Model Version page in the MLflow Model Registry UI provides information about `Version 1` of the registered forecasting model, including its author, creation time, and its current stage.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/registry_version_page.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="500">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC The Model Version page also provides a `Source Run` link, which opens the MLflow Run that was used to create the model in the MLflow Run UI. From the MLflow Run UI, you can access the `Source Notebook Link` to view a snapshot of the Databricks Notebook that was used to train the model.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/source_run_link.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="500">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/source_notebook_link.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="500">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC To navigate back to the MLflow Model Registry, click the `Models` icon in the Databricks Workspace Sidebar. The resulting MLflow Model Registry home page displays a list of all the registered models in your Databricks Workspace, including their versions and stages.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/registry_icon_sidebar.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="100">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC Select the `power-forecasting-model` link to open the Registered Model page, which displays all of the versions of the forecasting model.
-
-# COMMAND ----------
-
-# MAGIC %md ### Add model descriptions
-# MAGIC 
-# MAGIC You can add descriptions to Registered Models as well as Model Versions: 
-# MAGIC * Model Version descriptions are useful for detailing the unique attributes of a particular Model Version (e.g., the methodology and algorithm used to develop the model). 
-# MAGIC * Registered Model descriptions are useful for recording information that applies to multiple model versions (e.g., a general overview of the modeling problem and dataset).
-
-# COMMAND ----------
-
-# MAGIC %md Add a high-level description to the registered power forecasting model by clicking the `Edit Description` icon, entering the following description, and clicking `Save`:
-# MAGIC 
-# MAGIC ```
-# MAGIC This model forecasts the power output of a wind farm based on weather data. The weather data consists of three features: wind speed, wind direction, and air temperature.
-# MAGIC ```
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/model_description.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="800">
-# MAGIC   </td></tr>
-# MAGIC </table>
-
-# COMMAND ----------
-
-# MAGIC %md Next, click the `Version 1` link from the Registered Model page to navigate back to the Model Version page. Then, add a model version description with information about the model architecture and machine learning framework; click the `Edit Description` icon, enter the following description, and click `Save`:
-# MAGIC ```
-# MAGIC This model version was built using Keras. It is a feed-forward neural network with one hidden layer.
-# MAGIC ```
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/model_version_description.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="600">
-# MAGIC   </td></tr>
-# MAGIC </table>
-
-# COMMAND ----------
-
-# MAGIC %md ### Perform a model stage transition
-# MAGIC 
-# MAGIC The MLflow Model Registry defines several model stages: `None`, `Staging`, `Production`, and `Archived`. Each stage has a unique meaning. For example, `Staging` is meant for model testing, while `Production` is for models that have completed the testing or review processes and have been deployed to applications. 
-# MAGIC 
-# MAGIC Users with appropriate permissions can transition models between stages. In private preview, any user can transition a model to any stage. In the near future, administrators in your organization will be able to control these permissions on a per-user and per-model basis.
-# MAGIC 
-# MAGIC If you have permission to transition a model to a particular stage, you can make the transition directly. If you do not have permission, you can request a stage transition from another user.
-
-# COMMAND ----------
-
-# MAGIC %md Click the `Stage` button to display the list of available model stages and your available stage transition options. Select `Transition to -> Production` and press `OK` in the stage transition confirmation window to transition the model to `Production`.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/stage_transition_prod.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="450">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/confirm_transition.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="450">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC After the model version is transitioned to `Production`, the current stage is displayed in the UI, and an entry is added to the activity log to reflect the transition.
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/stage_production.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="700">
-# MAGIC   </td></tr>
-# MAGIC </table>
-# MAGIC 
-# MAGIC <table>
-# MAGIC   <tr><td>
-# MAGIC     <img src="https://github.com/dbczumar/model-registry-demo-notebook/raw/master/ui_screenshots/activity_production.png"
-# MAGIC          alt="MLflow Runs Sidebar Icon"  width="700">
-# MAGIC   </td></tr>
-# MAGIC </table>
-
-# COMMAND ----------
-
-# MAGIC %md # Integrate the model with the forecasting application
-# MAGIC 
-# MAGIC Now that you have trained and registered a power forecasting model with the MLflow Model Registry, the next step is to integrate it with an application. This application fetches a weather forecast for the wind farm over the next five days and uses the model to produce power forecasts. For example purposes, the application consists of a simple `forecast_power()` function (defined below) that is executed within this notebook. In practice, you may want to execute this function as a recurring batch inference job using the Databricks Jobs service.
-# MAGIC 
-# MAGIC The following **"Load versions of the registed model"** section demonstrates how to load model versions from the MLflow Model Registry for use in applications. Then, the **"Forecast power output with the production model"** section uses the `Production` model to forecast power output for the next five days.
-
-# COMMAND ----------
-
-# MAGIC %md ## Load versions of the registered model
-# MAGIC 
-# MAGIC The MLflow Models component defines functions for loading models from several machine learning frameworks. For example, `mlflow.keras.load_model()` is used to load Keras models that were saved in MLflow format, and `mlflow.sklearn.load_model()` is used to load scikit-learn models that were saved in MLflow format.
-# MAGIC 
-# MAGIC These functions can load models from the MLflow Model Registry.
-
-# COMMAND ----------
-
-# MAGIC %md You can load a model by specifying its name (e.g., `power-forecast-model`) and version number (e.g., `1`). The following cell uses the `mlflow.pyfunc.load_model()` API to load `Version 1` of the registered power forecasting model as a generic Python function.
-
-# COMMAND ----------
-
-import mlflow.pyfunc
-
-model_name = "power-forecasting-model"
-model_version_uri = f"models:/{model_name}/1"
-
-print(f"Loading registered model version from URI: '{model_version_uri}'")
-model_version_1 = mlflow.pyfunc.load_model(model_version_uri)
-
-# COMMAND ----------
-
-# MAGIC %md You can also load a specific model stage. The following cell loads the `Production` stage of the power forecasting model.
-
-# COMMAND ----------
-
-model_production_uri = f"models:/{model_name}/production"
-
-print(f"Loading registered model version from URI: '{model_production_uri}'")
-model_production = mlflow.pyfunc.load_model(model_production_uri)
-
-# COMMAND ----------
-
-# MAGIC %md ## Forecast power output with the production model
-# MAGIC 
-# MAGIC In this section, the production model is used to evaluate weather forecast data for the wind farm. The `PlotUtils.forecast_power()` class loads a version of the forecasting model from the specified URI and uses it to forecast power production over the next five days.
-
-# COMMAND ----------
-
-PlotUtils.forecast_power(model_production_uri, wind_farm_data)
 
 # COMMAND ----------
 
@@ -391,6 +146,8 @@ PlotUtils.forecast_power(model_production_uri, wind_farm_data)
 
 # COMMAND ----------
 
+model_name = "power-forecasting-model"
+
 params_list = [
         {"n_estimators": 100},
         {"n_estimators": 200},
@@ -410,7 +167,7 @@ for params in params_list:
 
 # COMMAND ----------
 
-model_version = 2 # If necessary, replace this with the version corresponding to the new scikit-learn model
+model_version = 4 # If necessary, replace this with the version corresponding to the new scikit-learn model
 
 # COMMAND ----------
 
@@ -443,7 +200,7 @@ client.update_model_version(
 
 # COMMAND ----------
 
-client.update_model_version(
+client.transition_model_version_stage(
   name=model_name,
   version=model_version,
   stage="Staging",
@@ -468,7 +225,7 @@ PlotUtils.forecast_power(model_staging_uri, wind_farm_data)
 
 # COMMAND ----------
 
-client.update_model_version(
+client.transition_model_version_stage(
   name=model_name,
   version=model_version,
   stage="Production"
