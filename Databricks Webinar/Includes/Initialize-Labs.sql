@@ -1,5 +1,4 @@
 -- Databricks notebook source
--- MAGIC 
 -- MAGIC %python
 -- MAGIC testResults = dict()
 -- MAGIC 

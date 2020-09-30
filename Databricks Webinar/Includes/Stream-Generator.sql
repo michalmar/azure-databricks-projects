@@ -1,5 +1,4 @@
 -- Databricks notebook source
--- MAGIC 
 -- MAGIC %python
 -- MAGIC class DummyDataGenerator:
 -- MAGIC   streamDirectory = "dbfs:/tmp/{}/new-flights".format(username)

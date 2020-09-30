@@ -1,5 +1,4 @@
 -- Databricks notebook source
--- MAGIC 
 -- MAGIC %python
 -- MAGIC def dbTest(id, expected, result):
 -- MAGIC   assert str(expected) == str(result), "{} does not equal expected {}".format(result, expected)

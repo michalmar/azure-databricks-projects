@@ -1,5 +1,4 @@
 -- Databricks notebook source
--- MAGIC 
 -- MAGIC %scala
 -- MAGIC val dbNamePrefix = {
 -- MAGIC   val tags = com.databricks.logging.AttributionContext.current.tags

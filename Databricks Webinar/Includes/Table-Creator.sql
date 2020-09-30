@@ -1,5 +1,4 @@
 -- Databricks notebook source
--- MAGIC 
 -- MAGIC %python
 -- MAGIC # Create Tables
 -- MAGIC # This notebook creates tables in Databricks from external files, primarily to make SQL access easier. 
