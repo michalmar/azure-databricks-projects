@@ -118,3 +118,53 @@ data_sp.createOrReplaceTempView("ages_v")
 # MAGIC # dataset<-as.data.frame(df)
 # MAGIC 
 # MAGIC display(df)
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+data_pt = (spark.read
+    .format('com.databricks.spark.csv')
+    .option("inferSchema", "true")
+    .option("header", "true")
+    .load("abfss://test@mmaadlsgen2tst.dfs.core.windows.net/pko-stocks-cleansed-w-target.csv"))
+
+# COMMAND ----------
+
+spark.conf.set(
+  "fs.azure.account.key.mmaadlsgen2tst.dfs.core.windows.net","4z/No9iZ6L8SJ6fwEgqCARzw5v4qt1TwQ0nWqTpkFA9jgy0uVlTJgsXb6nDyL4CNsWrDRb88Iu+wb1qbjQoUrA==")
+
+# COMMAND ----------
+
+data_pt = (spark.read
+    .format('com.databricks.spark.csv')
+    .option("inferSchema", "true")
+    .option("header", "true")
+    .load("abfss://test@mmaadlsgen2tst.dfs.core.windows.net/pko-stocks-cleansed-w-target.csv"))
+
+# COMMAND ----------
+
+# MAGIC %r
+# MAGIC 
+# MAGIC dbutils.fs.mounts()
+
+# COMMAND ----------
+
+# MAGIC %r
+# MAGIC library(SparkR)
+# MAGIC 
+# MAGIC sdf <- read.df("abfss://test@mmaadlsgen2tst.dfs.core.windows.net/pko-stocks-cleansed-w-target.csv", "csv")
+# MAGIC str(sdf)
+
+# COMMAND ----------
+
+# MAGIC %r
+# MAGIC rdf <- read.csv("abfss://test@mmaadlsgen2tst.dfs.core.windows.net/pko-stocks-cleansed-w-target.csv")
+# MAGIC str(rdf)
+# MAGIC rdf
